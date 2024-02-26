@@ -1,4 +1,3 @@
-import os
 import requests
 from flask import Flask, request, jsonify, render_template
 
@@ -84,5 +83,4 @@ def measure():
     return render_template('measure.html')
        
 if __name__ == '__main__':
-    os.system("python3 -m pip install requests flask")
     app.run(debug=True, port=5002)
