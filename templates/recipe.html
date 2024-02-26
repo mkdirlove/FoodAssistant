@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Assistant</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        /* Additional custom styles can be added here */
+        #response {
+            margin-top: 20px;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 200px;
+            height: auto;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-burger {
+            color: white;
+        }
+        span {
+        	margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar is-danger" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img class="logo" src="../static/recipe.png" alt="Logo">
+                <span class="navbar-text has-text-weight-bold">Recipe Assistant</span>
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <!-- Your other navbar items here -->
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable has-text-weight-bold is-size-4">
+                    <a class="navbar-link">
+                        Tools
+                    </a>
+                    <div class="navbar-dropdown ">
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/">Dashboard</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/recipe_assistant">Search Recipe by Name</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/suggest_recipe">Recipe Suggestions</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/food_benefit">Search Food Benefits</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/measure">Measurement Converter</a>
+                    </div>
+                </div>
+                <a class="navbar-item has-text-weight-bold is-size-4" id="aboutButton">About</a>
+            </div>
+        </div>
+    </nav>
+    
+
+    <section class="section">
+        <div class="container">
+            <img class="logo" src="../static/recipe.png" alt="Logo">
+            <h1 class="title has-text-centered mb-4">Recipe Assistant</h1>
+            <br>
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <form id="queryForm">
+                        <div class="field">
+                            <div class="control">
+                                <input class="input is-large is-danger is-rounded" type="text" id="query" name="query" placeholder="Search recipe by name..." required>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-danger is-fullwidth is-large has-text-weight-bold is-rounded" type="submit">Search Recipe</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="response" class="box is-size-5">The recipe will appear here...</div>
+        </div>
+    </section>
+
+    <!-- Modern Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">About</p>
+                <button class="delete is-large" id="closeModal"></button> <!-- Close button -->
+            </header>
+            <section class="modal-card-body">
+                <p class="has-text-justified">An AI powered Recipe Assistant application that provides recipe suggestions and detailed instructions based on your queries. Enjoy exploring various recipes and cooking delicious meals!<br><br>Made with ❤️ by @mkdirove | @mitchycats</p>
+            </section>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script>
+        async function getResponse() {
+            const query = document.getElementById('query').value;
+            const response = await fetch(`/get_response?query=${query}`);
+            const responseData = await response.json();
+            const formattedResponse = JSONToPlainText(responseData);
+            document.getElementById('response').innerText = formattedResponse;
+        }
+
+        function JSONToPlainText(jsonData) {
+            let plainText = '';
+            for (const key in jsonData) {
+                if (jsonData.hasOwnProperty(key)) {
+                    plainText += `${key} ${jsonData[key]}\n`;
+                }
+            }
+            return plainText;
+        }
+
+        document.getElementById('queryForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            getResponse();
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+        
+                // Add a click event on each of them
+                $navbarBurgers.forEach(function ($el) {
+                    $el.addEventListener('click', function () {
+        
+                        // Get the target from the "data-target" attribute
+                        const target = $el.dataset.target;
+                        const $target = document.getElementById(target);
+        
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        $el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+        
+                    });
+                });
+            }
+
+            // Get the modal element
+            const modal = document.getElementById('aboutModal');
+
+            // Get the button that opens the modal
+            const btn = document.getElementById('aboutButton');
+
+            // Get the close button inside the modal
+            const closeModalBtn = document.getElementById('closeModal');
+
+            // When the user clicks the button, open the modal
+            btn.onclick = function() {
+                modal.classList.add('is-active');
+            }
+
+            // When the user clicks on the close button, close the modal
+            closeModalBtn.onclick = function() {
+                modal.classList.remove('is-active');
+            }
+        });
+    </script>
+</body>
+</html>

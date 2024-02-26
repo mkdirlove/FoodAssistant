@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Measurement Converter</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <style>
+        /* Additional custom styles can be added here */
+        #response {
+            margin-top: 20px;
+        }
+        .logo {
+            display: block;
+            margin: 0 auto;
+            max-width: 200px;
+            height: auto;
+        }
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .navbar-burger {
+            color: white;
+        }
+        span {
+        	margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar is-info" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/measure">
+                <img class="logo" src="../static/measure.png" alt="Logo">
+                <span class="navbar-text has-text-weight-bold">Measurement Converter</span> 
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+        
+        <div id="navbarBasicExample" class="navbar-menu">
+            <div class="navbar-start">
+                <!-- Your other navbar items here -->
+            </div>
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable has-text-weight-bold is-size-4">
+                    <a class="navbar-link">
+                        Tools
+                    </a>
+                    <div class="navbar-dropdown ">
+                    	<a class="navbar-item has-text-weight-bold is-size-6" href="/">Dashboard</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/">Search Recipe by Name</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/suggest_recipe">Recipe Suggestions</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/food_benefit">Search Food Benefits</a>
+                        <a class="navbar-item has-text-weight-bold is-size-6" href="/measure">Measurement Converter</a>
+                    </div>
+                </div>
+                <a class="navbar-item has-text-weight-bold is-size-4" id="aboutButton">About</a>
+            </div>
+        </div>
+    </nav>
+    
+
+        <section class="section">
+        <div class="container">
+        <img class="logo" src="../static/measure.png" alt="Logo">
+            <h1 class="title has-text-centered">Measurement Converter</h1>
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <div class="field">
+                        <label class="label">From</label>
+                        <div class="control">
+                            <input class="input is-large is-info is-rounded" type="number" id="fromValue" placeholder="Enter value to convert" required>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">From Unit</label>
+                        <div class="control">
+                            <div class="select is-info is-medium is-rounded">
+                                <select id="fromUnit">
+                                    <option value="teaspoons">Teaspoons</option>
+                                    <option value="tablespoons">Tablespoons</option>
+                                    <option value="fluid_ounces">Fluid Ounces</option>
+                                    <option value="cups">Cups</option>
+                                    <option value="pints">Pints</option>
+                                    <option value="quarts">Quarts</option>
+                                    <option value="gallons">Gallons</option>
+                                    <option value="milliliters">Milliliters</option>
+                                    <option value="liters">Liters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">To Unit</label>
+                        <div class="control">
+                            <div class="select is-info is-medium is-rounded">
+                                <select id="toUnit">
+                                    <option value="teaspoons">Teaspoons</option>
+                                    <option value="tablespoons">Tablespoons</option>
+                                    <option value="fluid_ounces">Fluid Ounces</option>
+                                    <option value="cups">Cups</option>
+                                    <option value="pints">Pints</option>
+                                    <option value="quarts">Quarts</option>
+                                    <option value="gallons">Gallons</option>
+                                    <option value="milliliters">Milliliters</option>
+                                    <option value="liters">Liters</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-info is-fullwidth is-large has-text-weight-bold is-rounded" onclick="convert()">Convert</button>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Result</label>
+                        <div class="control">
+                            <input class="input is-large is-info is-rounded" type="text" id="result" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modern Modal -->
+    <div class="modal" id="aboutModal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head">
+                <p class="modal-card-title">About</p>
+                <button class="delete is-large" id="closeModal"></button> <!-- Close button -->
+            </header>
+            <section class="modal-card-body">
+                <p class="has-text-justified">A measurement converter for cooking using JavaScript. Enjoy exploring various recipes and cooking delicious meals!<br><br>Made with ❤️ by @mkdirove | @mitchycats</p>
+            </section>
+        </div>
+    </div>
+    
+    <script>
+        function convert() {
+            const fromValue = parseFloat(document.getElementById('fromValue').value);
+            const fromUnit = document.getElementById('fromUnit').value;
+            const toUnit = document.getElementById('toUnit').value;
+            let result;
+
+            // Conversion logic
+            switch (fromUnit) {
+                case 'teaspoons':
+                    result = convertTeaspoons(fromValue, toUnit);
+                    break;
+                case 'tablespoons':
+                    result = convertTablespoons(fromValue, toUnit);
+                    break;
+                case 'fluid_ounces':
+                    result = convertFluidOunces(fromValue, toUnit);
+                    break;
+                case 'cups':
+                    result = convertCups(fromValue, toUnit);
+                    break;
+                case 'pints':
+                    result = convertPints(fromValue, toUnit);
+                    break;
+                case 'quarts':
+                    result = convertQuarts(fromValue, toUnit);
+                    break;
+                case 'gallons':
+                    result = convertGallons(fromValue, toUnit);
+                    break;
+                case 'milliliters':
+                    result = convertMilliliters(fromValue, toUnit);
+                    break;
+                case 'liters':
+                    result = convertLiters(fromValue, toUnit);
+                    break;
+                default:
+                    result = "Invalid unit";
+            }
+
+            document.getElementById('result').value = result;
+        }
+
+        // Conversion functions
+        function convertTeaspoons(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value;
+                case 'tablespoons':
+                    return value / 3;
+                case 'fluid_ounces':
+                    return value / 6;
+                case 'cups':
+                    return value / 48;
+                case 'pints':
+                    return value / 96;
+                case 'quarts':
+                    return value / 192;
+                case 'gallons':
+                    return value / 768;
+                case 'milliliters':
+                    return value * 4.929;
+                case 'liters':
+                    return value * 0.00493;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertTablespoons(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 3;
+                case 'tablespoons':
+                    return value;
+                case 'fluid_ounces':
+                    return value / 2;
+                case 'cups':
+                    return value / 16;
+                case 'pints':
+                    return value / 32;
+                case 'quarts':
+                    return value / 64;
+                case 'gallons':
+                    return value / 256;
+                case 'milliliters':
+                    return value * 14.787;
+                case 'liters':
+                    return value * 0.0148;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertFluidOunces(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 6;
+                case 'tablespoons':
+                    return value * 2;
+                case 'fluid_ounces':
+                    return value;
+                case 'cups':
+                    return value / 8;
+                case 'pints':
+                    return value / 16;
+                case 'quarts':
+                    return value / 32;
+                case 'gallons':
+                    return value / 128;
+                case 'milliliters':
+                    return value * 29.574;
+                case 'liters':
+                    return value * 0.0296;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertCups(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 48;
+                case 'tablespoons':
+                    return value * 16;
+                case 'fluid_ounces':
+                    return value * 8;
+                case 'cups':
+                    return value;
+                case 'pints':
+                    return value / 2;
+                case 'quarts':
+                    return value / 4;
+                case 'gallons':
+                    return value / 16;
+                case 'milliliters':
+                    return value * 236.588;
+                case 'liters':
+                    return value * 0.2366;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertPints(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 96;
+                case 'tablespoons':
+                    return value * 32;
+                case 'fluid_ounces':
+                    return value * 16;
+                case 'cups':
+                    return value * 2;
+                case 'pints':
+                    return value;
+                case 'quarts':
+                    return value / 2;
+                case 'gallons':
+                    return value / 8;
+                case 'milliliters':
+                    return value * 473.176;
+                case 'liters':
+                    return value * 0.4732;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertQuarts(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 192;
+                case 'tablespoons':
+                    return value * 64;
+                case 'fluid_ounces':
+                    return value * 32;
+                case 'cups':
+                    return value * 4;
+                case 'pints':
+                    return value * 2;
+                case 'quarts':
+                    return value;
+                case 'gallons':
+                    return value / 4;
+                case 'milliliters':
+                    return value * 946.353;
+                case 'liters':
+                    return value * 0.9464;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertGallons(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 768;
+                case 'tablespoons':
+                    return value * 256;
+                case 'fluid_ounces':
+                    return value * 128;
+                case 'cups':
+                    return value * 16;
+                case 'pints':
+                    return value * 8;
+                case 'quarts':
+                    return value * 4;
+                case 'gallons':
+                    return value;
+                case 'milliliters':
+                    return value * 3785.41;
+                case 'liters':
+                    return value * 3.7854;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertMilliliters(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 0.202884;
+                case 'tablespoons':
+                    return value * 0.067628;
+                case 'fluid_ounces':
+                    return value * 0.033814;
+                case 'cups':
+                    return value * 0.004227;
+                case 'pints':
+                    return value * 0.002113;
+                case 'quarts':
+                    return value * 0.001057;
+                case 'gallons':
+                    return value * 0.000264;
+                case 'milliliters':
+                    return value;
+                case 'liters':
+                    return value * 0.001;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        function convertLiters(value, toUnit) {
+            switch (toUnit) {
+                case 'teaspoons':
+                    return value * 202.884;
+                case 'tablespoons':
+                    return value * 67.628;
+                case 'fluid_ounces':
+                    return value * 33.814;
+                case 'cups':
+                    return value * 4.167;
+                case 'pints':
+                    return value * 2.11338;
+                case 'quarts':
+                    return value * 1.05669;
+                case 'gallons':
+                    return value * 0.264172;
+                case 'milliliters':
+                    return value * 1000;
+                case 'liters':
+                    return value;
+                default:
+                    return "Invalid unit";
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
+        
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
+        
+                // Add a click event on each of them
+                $navbarBurgers.forEach(function ($el) {
+                    $el.addEventListener('click', function () {
+        
+                        // Get the target from the "data-target" attribute
+                        const target = $el.dataset.target;
+                        const $target = document.getElementById(target);
+        
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        $el.classList.toggle('is-active');
+                        $target.classList.toggle('is-active');
+        
+                    });
+                });
+            }
+
+            // Get the modal element
+            const modal = document.getElementById('aboutModal');
+
+            // Get the button that opens the modal
+            const btn = document.getElementById('aboutButton');
+
+            // Get the close button inside the modal
+            const closeModalBtn = document.getElementById('closeModal');
+
+            // When the user clicks the button, open the modal
+            btn.onclick = function() {
+                modal.classList.add('is-active');
+            }
+
+            // When the user clicks on the close button, close the modal
+            closeModalBtn.onclick = function() {
+                modal.classList.remove('is-active');
+            }
+        });
+
+    </script>
+</body>
+</html>
